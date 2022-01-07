@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https:// kelvin-qin.github.io/</id>
+    <title>Gridea</title>
+    <updated>2022-01-07T06:01:24.756Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https:// kelvin-qin.github.io/"/>
+    <link rel="self" href="https:// kelvin-qin.github.io/atom.xml"/>
+    <subtitle>温故而知新</subtitle>
+    <logo>https:// kelvin-qin.github.io/images/avatar.png</logo>
+    <icon>https:// kelvin-qin.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[ElasticSearch重要概念和常用操作]]></title>
+        <id>https:// kelvin-qin.github.io/post/elasticsearch-chong-yao-gai-nian-he-chang-yong-cao-zuo/</id>
+        <link href="https:// kelvin-qin.github.io/post/elasticsearch-chong-yao-gai-nian-he-chang-yong-cao-zuo/">
+        </link>
+        <updated>2022-01-05T02:57:45.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="最基础的增删改查">最基础的增删改查</h1>
+<p>在ElasticSearh 7.3版本全部验证过。</p>
+<h2 id="创建索引">创建索引</h2>
+<pre><code>PUT index_test
+</code></pre>
+<h2 id="写入数据">写入数据</h2>
+<pre><code>POST index_test/_doc
+{
+    &quot;title&quot;:&quot;oppo&quot;,
+    &quot;price&quot;:1999
+}
+</code></pre>
+<h2 id="查询数据">查询数据</h2>
+<pre><code># 统计索引的记录条数
+GET index_test/_count
+# 查询前5条数据
+GET index_test/_search
+{
+    &quot;size&quot;:5,
+    &quot;query&quot;:{
+        &quot;match_all&quot;:{}
+    }
+}
+</code></pre>
+<h2 id="删除数据">删除数据</h2>
+<pre><code># A：删除1条确定的数据
+# 以下示例中的1是一个文档的id，通过上述查询可以看到。 
+DELETE /&lt;index&gt;/_doc/&lt;_id&gt;
+DELETE /index_test/_doc/1
+
+# B：删除批量数据，通过查询删除，Delete by query API
+# POST /&lt;index&gt;/_delete_by_query
+# 例如删除某索引全部数据
+POST twitter/_delete_by_query?conflicts=proceed
+{
+  &quot;query&quot;: {
+    &quot;match_all&quot;: {}
+  }
+}
+# 删除年龄大于10的数据
+POST twitter/_delete_by_query?routing=1
+{
+  &quot;query&quot;: {
+    &quot;range&quot; : {
+        &quot;age&quot; : {
+           &quot;gte&quot; : 10
+        }
+    }
+  }
+}
+</code></pre>
+<p>批量删除的默认滚动批大小是1000，可以调整。</p>
+<pre><code>POST twitter/_delete_by_query?scroll_size=5000
+{
+  &quot;query&quot;: {
+    &quot;term&quot;: {
+      &quot;user&quot;: &quot;kimchy&quot;
+    }
+  }
+}
+</code></pre>
+<h2 id="删除整个索引">删除整个索引</h2>
+<p>与上述删除索引中的全部数据不同，还可以直接删除索引，拆家了这是。</p>
+<pre><code># 删除index_test这个索引，逗号分隔多个索引
+DELETE /index_test
+</code></pre>
+<h1 id="索引开关">索引开/关</h1>
+<pre><code># 某些操作需要关闭索引再进行；或者关闭一些暂时不用的索引。
+POST index_test/_close
+POST index_test/_open
+</code></pre>
+<h1 id="集群运维重要操作">集群运维重要操作</h1>
+<h2 id="节点掉线后延迟分配">节点掉线后延迟分配</h2>
+<p>这个参数对于稳定ES在线集群相当重要，<strong>这个操作不影响副本分片提升为主分片。</strong><br>
+节点离线后不会立即进行分片平衡，默认值是1m，节点离线后先等待这么久再进行副本分片分配和迁移等操作，以免频繁进行数据迁移耗费过大。</p>
+<pre><code>PUT _all/_settings
+{
+  &quot;settings&quot;: {
+    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;5m&quot;
+  }
+}
+# 对应的curl命令如下
+curl -X PUT &quot;localhost:9200/_all/_settings?pretty&quot; -H 'Content-Type: application/json' -d'
+{
+  &quot;settings&quot;: {
+    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;5m&quot;
+  }
+}
+'
+# 但如果一个节点确实是（永远）下线了，可以指示立即分配：
+curl -X PUT &quot;localhost:9200/_all/_settings?pretty&quot; -H 'Content-Type: application/json' -d'
+{
+  &quot;settings&quot;: {
+    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;0&quot;
+  }
+}
+'
+</code></pre>
+<h2 id="开启关闭集群的自动分配shard-allocation">开启关闭集群的自动分配(shard allocation)</h2>
+<p>这个在ES集群大范围重启前要考虑（滚动重启也算），<strong>维护时可以先停止分配，等维护好后再开启分配</strong>（强烈建议）。</p>
+<pre><code># 客户端停写，关闭集群shard allocation
+PUT _cluster/settings
+{
+    &quot;persistent&quot;: {
+        &quot;cluster.routing.allocation.enable&quot;: &quot;none&quot;
+    }
+}
+# 执行同步刷新
+POST _flush/synced
+# 停止和重启ES服务后，重新开启集群shard allocation
+PUT _cluster/settings
+{
+    &quot;persistent&quot;: {
+        &quot;cluster.routing.allocation.enable&quot;: &quot;all&quot;
+    }
+} 
+</code></pre>
+<h2 id="查看es集群的配置">查看ES集群的配置</h2>
+<p>查看配置以验证上述更改是否已经生效了。（<strong>多层json格式</strong>）</p>
+<pre><code>GET _cluser/settings
+</code></pre>
+<h1 id="集群运维排错基本步骤">集群运维排错基本步骤</h1>
+<ol>
+<li>查看集群健康状态<br>
+重点是<code>red</code>还是<code>yellow</code>，未分配个数，延迟分配个数，正在初始化的个数，节点数</li>
+</ol>
+<pre><code>curl -X GET &quot;localhost:9200/_cluster/health?pretty&quot;
+</code></pre>
+<ol start="2">
+<li>如果节点数不正常，那么有ES实例失联或者宕机，需要优先启动该ES实例。</li>
+<li>ES实例全部上线后，如果正在初始化个数为0，且有未分配的分片，则需要explain查看未分配原因，对症下药；如果有正在初始化的，等待恢复即可。</li>
+<li>一般进行处理后，分片会自动进行分配；如果未分配，可以执行reroute命令：</li>
+</ol>
+<pre><code># 在报错原因里提示分配失败是因为达到最大分配次数时，可使用这个命令。
+POST /_cluster/reroute?retry_failed=true&amp;pretty
+</code></pre>
+<ol start="5">
+<li>重复2~4。</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Hello Gridea]]></title>
+        <id>https:// kelvin-qin.github.io/post/hello-gridea/</id>
+        <link href="https:// kelvin-qin.github.io/post/hello-gridea/">
+        </link>
+        <updated>2018-12-11T16:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+<!-- more -->
+<p><a href="https://github.com/getgridea/gridea">Github</a><br>
+<a href="https://gridea.dev/">Gridea 主页</a><br>
+<a href="http://fehey.com/">示例网站</a></p>
+<h2 id="特性">特性👇</h2>
+<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
+<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
+<p>🏷️  你可以对文章进行标签分组</p>
+<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
+<p>💻  你可以在 <strong>Windows</strong>，<strong>MacOS</strong> 或 <strong>Linux</strong> 设备上使用此客户端</p>
+<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
+<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
+<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
+<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
+<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
+<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前 🏃</p>
+<p>未来，它一定会成为你离不开的伙伴</p>
+<p>尽情发挥你的才华吧！</p>
+<p>😘 Enjoy~</p>
+]]></content>
+    </entry>
+</feed>
