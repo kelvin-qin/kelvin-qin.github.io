@@ -1,0 +1,438 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>源码编译后打RPM包步骤-spark | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="目的
+修改了Spark部分源码，编译成jar包后要替换原rpm包中的jar，并重新打成rpm包以便安装。
+
+环境：CentOS 7.4
+
+步骤
+
+安装rpmbuild，rpmrebuild，rpmdevtools
+
+yum install ..." />
+    <meta name="keywords" content="Linux,Spark" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/yuan-ma-bian-yi-hou-da-rpm-bao.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2021-05-30"><i class="fa fa-calendar"></i><span class="lately">1 年前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/yuan-ma-bian-yi-hou-da-rpm-bao/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/yuan-ma-bian-yi-hou-da-rpm-bao/"> </span>
+              </a>
+              <span id="/yuan-ma-bian-yi-hou-da-rpm-bao/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-0 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-1 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">源码编译后打RPM包步骤-spark</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <h2 id="目的">目的</h2>
+<p>修改了Spark部分源码，编译成jar包后要替换原rpm包中的jar，并重新打成rpm包以便安装。</p>
+<ul>
+<li>环境：CentOS 7.4</li>
+</ul>
+<h2 id="步骤">步骤</h2>
+<ol>
+<li>安装rpmbuild，rpmrebuild，rpmdevtools</li>
+</ol>
+<pre><code>yum install -y rpm-build
+yum install -y rpmrebuild
+yum install -y rpmdevtools
+</code></pre>
+<blockquote>
+<p>rpmrebuild官网<br>
+<a href="http://rpmrebuild.sourceforge.net/">http://rpmrebuild.sourceforge.net/</a></p>
+</blockquote>
+<ul>
+<li>下载rpmrebuild</li>
+</ul>
+<p>RPM resource rpmrebuild<br>
+<a href="http://rpmfind.net/linux/rpm2html/search.php?query=rpmrebuild">http://rpmfind.net/linux/rpm2html/search.php?query=rpmrebuild</a></p>
+<ul>
+<li>百度网盘下载rpmrebuild：</li>
+</ul>
+<p>链接：<a href="https://pan.baidu.com/s/16_QY2aYSF4__BiqVCOG0kg">https://pan.baidu.com/s/16_QY2aYSF4__BiqVCOG0kg</a><br>
+提取码：8mov</p>
+<ol>
+<li>运行rpmdev-setuptree生成工作目录，使用rpmbuild --showrc | grep topdir查看工作目录。如果是root用户，此时生成的文件夹在<code>/root/rpmbuild</code>下。<br>
+注意：cd /root/rpmbuild;<strong>mkdir BUILDROOT</strong></li>
+<li>也可mkdir -p手动生成这些目录：</li>
+</ol>
+<pre><code>mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+</code></pre>
+<ol start="4">
+<li>提取spec文件：</li>
+</ol>
+<pre><code>rpmrebuild -p -n -s spark2.spec spark2_3_0_1_0_187-2.3.1.3.0.1.0-187.noarch.rpm
+</code></pre>
+<ol start="5">
+<li>将生成的<code>spark2.spec</code>拷贝到SPECS目录下。</li>
+<li>将spark2_3_0_1_0_187-2.3.1.3.0.1.0-187.noarch.rpm解压到rpmbuild/BUILDROOT目录下：</li>
+</ol>
+<pre><code>rpm2cpio spark2_3_0_1_0_187-2.3.1.3.0.1.0-187.noarch.rpm |cpio –idv
+</code></pre>
+<ol start="7">
+<li>你可能<strong>需要创建spark2_3_0_1_0_187-2.3.1.3.0.1.0-187目录</strong>，并将上一步解压出来的内容移动到这个目录。</li>
+<li>将你修改代码编译成的jar包拷贝到解压出来的相应位置（删除原来同名的jar包！）</li>
+<li>根据提取的spec文件把解压出的那些文件重新打rpm包：</li>
+</ol>
+<pre><code>cd ~/rpmbuild/
+rpmbuild -ba SPECS/spark2.spec
+</code></pre>
+<ol start="10">
+<li>新生成的xxx.rpm包位置在/root/rpmbuild/RPMS下（使用root用户时）</li>
+<li>这个rpm包可以安装使用了：</li>
+</ol>
+<pre><code>rpm -ivh /root/rpmbuild/RPMS/xxx.rpm
+</code></pre>
+<h3 id="备注">备注</h3>
+<p>提取spec文件也可使用如下命令：</p>
+<pre><code>rpmrebuild –package –notest-install –spec-only   your.spec   xxxx.rpm
+</code></pre>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/sparkstreaming-hbase-su-du-ti-sheng-5-bei.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/sparkstreaming-hbase-su-du-ti-sheng-5-bei/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2021-06-06">2021-06-06</time>
+                  <h4 class="title white no-margin">SparkStreaming写Hbase速度提升5倍</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/spark3-she-zhi-hdfs-jar.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/spark3-she-zhi-hdfs-jar/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2021-02-10">2021-02-10</time>
+                  <h4 class="title white no-margin">Spark3设置HDFS jar包位置</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

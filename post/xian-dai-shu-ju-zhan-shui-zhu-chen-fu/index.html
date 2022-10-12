@@ -1,0 +1,652 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>现代数据栈，谁主沉浮? | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="2022年已经没有人谈大数据这个概念，不是它失败了，恰恰是因为它成功了。成功技术的吊诡之处在于，它最终会被认为是理所当然，消失在背景音中。
+
+从最近的新闻热点里，我们不难看到大数据的身影，例如大数据加持的金税四期，疫情防控下的大数据时空伴随..." />
+    <meta name="keywords" content="技术杂谈,星光集,点线面" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/xian-dai-shu-ju-zhan-shui-zhu-chen-fu.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2022-05-23"><i class="fa fa-calendar"></i><span class="lately">5 个月前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/xian-dai-shu-ju-zhan-shui-zhu-chen-fu/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/xian-dai-shu-ju-zhan-shui-zhu-chen-fu/"> </span>
+              </a>
+              <span id="/xian-dai-shu-ju-zhan-shui-zhu-chen-fu/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-0 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-1 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-2 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">现代数据栈，谁主沉浮?</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <p>2022年已经没有人谈大数据这个概念，不是它失败了，恰恰是因为它成功了。成功技术的吊诡之处在于，它最终会被认为是理所当然，消失在背景音中。</p>
+<blockquote>
+<p>从最近的新闻热点里，我们不难看到大数据的身影，例如大数据加持的金税四期，疫情防控下的大数据时空伴随者等等……</p>
+</blockquote>
+<!-- more -->
+<p>随着SaaS的普及和深入，数据驱动成为共识，云计算以及云端数据仓库的发展，逐渐有了现代数据技术栈这个新的数据生态体系。现代数据栈（MDS）主要是在欧美，确切的来讲是美国近几年出现的一个称呼，我们可以把它理解为一套新的数据生态体系。</p>
+<h2 id="何为现代数据栈">何为现代数据栈？</h2>
+<p>现代数据技术栈通常是指构成云原生数据平台的一组技术，对比传统的数据平台，使用它们可以大大的降低复杂度，这个技术栈的构成组件不是固定的：</p>
+<ul>
+<li>
+<p>一个云端的数据仓库，比如Snowflake, Redshift, BigQuery或者Databricks Delta Lake</p>
+</li>
+<li>
+<p>一个数据集成服务，比如Fivetran, Segment或者Airbtye</p>
+</li>
+<li>
+<p>一个ELT数据转换工具，几乎确定是dbt</p>
+</li>
+<li>
+<p>一个BI层，例如Looker或者Mode</p>
+</li>
+<li>
+<p>一个反向ETL工具，比如Census或者Hightouch</p>
+</li>
+</ul>
+<h2 id="数据栈怎样构成">数据栈怎样构成？</h2>
+<p>说起现代数据栈，那不得不说经典数据栈（戏称“Hadoop民工栈”）：一个基础平台之上的存储、计算、分析、可视化、管理和安全等的组件分层图，这种架构应该是各大数据厂商都有自家的一版。相对于RDBMS的成熟老练来讲，这套系统从诞生到现在不过二十载的时间里还是如日中天，然鹅现代社会，尤其是技术生命的新陈代谢已经到了一个非常高的水平，一代人的时间足以产生翻天覆地的变化。</p>
+<p>看到<a href="https://jiagoushi.pro/modern-data-stack-startups">这张架构图</a>里是否有你熟悉的面孔？</p>
+<figure data-type="image" tabindex="1"><img src="https://kelvin-qin.github.io/post-images/%E7%8E%B0%E4%BB%A3%E6%95%B0%E6%8D%AE%E6%A0%881.png" alt="" loading="lazy"></figure>
+<p>不错，还有几个老朋友，NiFi、Spark、Flink都还有一席之地，每一层多了很多新朋友。</p>
+<ul>
+<li>提取和加载：<br>
+从所有事件源（如 Web、应用程序、后端服务）收集数据，并将它们发送到数据仓库。
+<ul>
+<li>付费 SaaS 工具：Stitch、Fivetran</li>
+<li>免费和开源替代品：Singer、Meltano、Airbyte</li>
+</ul>
+</li>
+<li>数据仓库<br>
+组织所有数据的结构化、非易失性、单一事实来源，我们可以在其中存储和查询所有数据。
+<ul>
+<li>付费：AWS Redshift、Google BigQuery、Snowflake</li>
+<li>免费和开源替代品：Apache Druid</li>
+</ul>
+</li>
+<li>转换和建模<br>
+使用文档从原始数据创建模型以更好地使用。
+<ul>
+<li>付费：Dataform、DBT</li>
+<li>免费和开源替代品：Talend Open Studio、Apache NiFi</li>
+</ul>
+</li>
+<li>编排<br>
+用于执行和编排处理数据流的作业的软件。
+<ul>
+<li>付费：Prefect.io</li>
+<li>免费和开源替代品：Apache Airflow、Dagster</li>
+</ul>
+</li>
+<li>可视化和分析<br>
+为了更好地了解和解释来自不同数据源的数据。
+<ul>
+<li>付费：Tableau、Microsoft PowerBI、Grafana</li>
+<li>免费和开源替代品：Metabase、D3js、DyGraphs</li>
+</ul>
+</li>
+</ul>
+<p>但是我们继续看下面这张图：<br>
+<img src="https://kelvin-qin.github.io/post-images/%E7%8E%B0%E4%BB%A3%E6%95%B0%E6%8D%AE%E6%A0%882.png" alt="" loading="lazy"><br>
+ <br>
+ Google 图片中输入“现代数据栈”即可注意到数据市场中的所有公司都在提出他们自己的技术列表来组成这个栈，虽然王婆卖瓜，但几乎所有关于现代数据栈的博客文章都没有 Spark，却无一例外地包含了dbt。</p>
+<h2 id="过去-现在与未来">过去、现在与未来</h2>
+<blockquote>
+<p>dbt的创始人Tristan Handy表示，他从2015年开始整理&quot;现代技术栈&quot;，整整五年的时间里，构成最佳技术栈的这个集合一直维持不变。</p>
+</blockquote>
+<p>Tristan Handy归纳的现代数据技术栈的三个不同时间段：</p>
+<h3 id="寒武纪大爆发第一阶段2012-2016">寒武纪大爆发第一阶段，2012-2016</h3>
+<p>现代数据技术栈是围绕着亚马逊2012年10月份发布的Amazon Redshift而产生的。</p>
+<p>数据技术栈中其他层的核心产品的创建日期：</p>
+<ul>
+<li>
+<p>Chartio: 2010</p>
+</li>
+<li>
+<p>Looker: 2011</p>
+</li>
+<li>
+<p>Mode: 2012</p>
+</li>
+<li>
+<p>Periscope: 2012</p>
+</li>
+<li>
+<p>Fivetran: 2012</p>
+</li>
+<li>
+<p>Metabase: 2014</p>
+</li>
+<li>
+<p>Stitch: 2015</p>
+</li>
+<li>
+<p>Redash: 2015</p>
+</li>
+<li>
+<p>dbt: 2016</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://kelvin-qin.github.io/post-images/redshift%E4%B9%8B%E5%90%8E%E7%9A%84%E8%9E%8D%E8%B5%84.png" alt="" loading="lazy"></figure>
+<p>你可以看到2012年的确是时代开始了。这种天地之别是由于像Redshift这种MPP(大规模并行计算)/OLAP系统的内部架构和类似于Postgres这种OLTP系统的显著的区别带来的。</p>
+<p>简而言之，Redshift能够在巨大的数据集上响应分析查询，处理很多个数据表关联，比OLTP数据库要快10-1000倍。<strong>10-1000倍的性能提高往往会改变你对产品构建的看法。</strong></p>
+<blockquote>
+<p>BigQuery直到2016年才发布标准SQL的支持，因此在这之前并没有被广泛采用。Snowflake的产品直到2017-2018年才真正的成熟。</p>
+</blockquote>
+<h3 id="部署期2016-2020">部署期，2016-2020</h3>
+<p>事实证明，这是行业要经历的一个正常的周期。一个主要的可用技术一旦发布，激发了该领域的一系列创新，然后这些产品会经历一个部署阶段使得公司去采用它们。<br>
+<img src="https://kelvin-qin.github.io/post-images/%E9%83%A8%E7%BD%B2S%E6%9B%B2%E7%BA%BF.png" alt="" loading="lazy"><br>
+这是向上S曲线的一个过程，早期采用者是宽容的，但是技术需要改进才能被越来越多的受众所采纳。</p>
+<blockquote>
+<p>这一阶段在国内基本属于经典大数据的扩张期，以及上云的兴起阶段。</p>
+</blockquote>
+<h3 id="寒武纪大爆发第二阶段2020-2025">寒武纪大爆发第二阶段，2020-2025</h3>
+<p>快速的做个总结，在2012年Redshift发布之后，我们立刻看到了大量的创新，释放了全新水平的性能、效率以及新的用户习惯。然后到了一个成熟期，这些新生的产品被部署到市场，精进技术，并完善功能。到现在为止，这些新产品已经准备好可以充当建立新的后续创新的基石。<br>
+我们准备迎接新的一波创新，一个新的寒武纪大爆炸。这将带来哪些类型的创新？</p>
+<ul>
+<li>
+<p>数据治理<br>
+数据治理是一个时机成熟的产品领域。这个产品领域包括非常广泛的用户用例，包括数据集的发现，查看数据的血缘关系和谱系，以及为数据优先的公司内地广泛的数据使用者提供数据导航和数据痕迹。<br>
+没有很好的治理，更多的数据=更多的混乱=更少的信任。</p>
+<p>有商用的，但缺乏广大的用户量。</p>
+<ul>
+<li>Linkedin有DataHub</li>
+<li>Lyft有Amundsen</li>
+<li>Wework有Marquez</li>
+<li>Airbnb有Dataportal</li>
+<li>Spotify有Lexikon</li>
+<li>Netflix有Metacat</li>
+<li>Uber有Databook</li>
+</ul>
+</li>
+<li>
+<p>实时<br>
+对于今天的现代数据技术栈的主要用例来讲，实时数据当然不是必须的，但是将整个数据处理流的延迟降低到15-60秒可以为这个技术解锁全新的用例。<br>
+并且我们已经有信号能够感受到这个领域的技术已经触手可及：每个主要的数据仓库开始实现支持构造更多的实时数据流。</p>
+<ul>
+<li>Snowflake非常强大依赖它的流式功能，而Bigquery和Redshift都强调他们的物化视图。这两种方法都在朝着正确的方向前进，但是以我来看，这两种方法都无法让我们走到终点。</li>
+<li>另外有趣的话题是KSQL, 一个在Kafka之上构建的流式SQL。它的确非常对有趣并且有前景，但是围绕着SQL还是存在一些限制(尤其是在表关联上)，因此对于我来讲，它还是一个“还欠点火候”的东西。<br>
+我们还没真正达到目标，但是我们已经能够看到胜利的曙光。</li>
+</ul>
+</li>
+<li>
+<p>完成反馈闭环<br>
+数据从运营系统流入到现代数据技术栈，并在这里进行分析，支持生产业务系统，Census和Tray可以关注。</p>
+</li>
+<li>
+<p>民主化数据探索</p>
+<ul>
+<li>这是一个可能引起争议的观点。<br>
+今天不使用SQL的数据消费者有很多的选择。所有的主流的BI工具都有一些不用SQL就能辅助数据探索的操作界面。但是绝对没有一个(包括LookML)甚至能够远远的接近Excel的广泛采用水平或者纯粹的创作的灵活性。<br>
+这个挑战是不平凡的，如果没有一个强大的，灵活的工具能让数据消费者自服务，现代数据技术栈将永远只为少数人服务，这是一个非常糟糕的结果。</li>
+</ul>
+</li>
+<li>
+<p>垂直分析体验<br>
+将所有的数据视为行和列的工具和专门用于某种特定数据类型的分析工具哪种更好？答案是：我们两者都需要。但是我们缺少的是在现代数据技术栈上构建的垂直的分析界面。<br>
+随着使用现代数据技术栈的公司的增加，构建像这种新的、轻量级的、垂直的应用的机会将会大大的增加。你已经可以在Looker的应用市场中看到这个方向。</p>
+</li>
+</ul>
+<h3 id="关于实时">关于实时</h3>
+<blockquote>
+<p>现代企业的需求和要求正在以戏剧性的方式转变。因此，旧的“批处理”模式正在让位于更细化、更高频率的实时更新，从而带来更新鲜的数据和更快的洞察力。</p>
+</blockquote>
+<p>除了分析性的洞察力，实时数据基础设施正在促成一类新的应用，可以在数据发生变化时做出反应。这涉及到数据堆栈的每一个部分，从数据摄取，到业务分析，到机器学习和人工智能。</p>
+<p>在现代数据栈中，实时基础设施和工具可以采取多种形式：</p>
+<ul>
+<li>以高频率和高容量将小数据包从A处流向B处(例如：Apache Kafka、Redpanda、Apache Pulsar)。</li>
+<li>通过流处理工具过滤和转换对流数据(例如：Apache Flink、Apache Samza、Decodable)。</li>
+<li>实时分析，让分析师在低延迟的情况下获得对业务查询的最新反馈(例如：Materialize、ClickHouse、Tinybird)。</li>
+<li>实时或在线机器学习模型，不断适应和学习数据，并实时生成预测(例如：Tecton)。</li>
+<li></li>
+</ul>
+<p>今天，将这些不同的系统组合起来仍然是是一件棘手的事情,但是，进行这些投资的组织将获得丰厚的回报。</p>
+<h3 id="关于数据栈民主化">关于数据栈民主化</h3>
+<p>数据管理简化浪潮是一个非常重要的趋势。</p>
+<blockquote>
+<p>对于数据民主化的一个定义。总结起来就是：数据民主化是让一个组织中所有人都可以无阻碍的去访问需要的数据，从而让这个组织中的每个人都可以随时随地的基于数据去做决策而不会受到限制。</p>
+</blockquote>
+<p>数据民主化是目前海外数据领域一个比较热门的词汇，作者认为这跟海外的社会环境以及企业发展的现状密不可分。对于国内来讲，由于我们国情的不同，数据民主化应该还有相当长的一段路要走。</p>
+<h3 id="现代数据栈的未来">现代数据栈的未来</h3>
+<p>现在采用现代数据技术栈路线的公司一般会根据需要来采用其中合适的技术-也就是你并不需要里边所有的组件，有些公司也可能会采用其他的技术，比如Airflow, Dagster或者Prefect用作编排层。一个简单的架构示例如下图：<br>
+<img src="https://kelvin-qin.github.io/post-images/%E6%95%B0%E6%8D%AE%E6%A0%88%E6%9C%AA%E6%9D%A51.png" alt="" loading="lazy"><br>
+仅仅在云上拥有一个数据平台并不能称之为一个&quot;现代数据技术栈&quot;。如果我们纵观整个生态系统中的技术，我们会发现他们有一些共同的属性，这些属性正是现代数据技术栈的核心，是作为现代数据技术栈的关键能力：</p>
+<ul>
+<li>
+<p><strong>提供一个托管式的服务</strong>：不需要或者让客户尽量少的配置就能使用，并且绝对不需要工程师的介入。用户可以立即可以开始使用，这绝对不是一个乏味的营销承诺。</p>
+</li>
+<li>
+<p><strong>以云数据仓库为中心</strong>：如果公司正在使用一个流行的云端数据仓库，所有的一切前提条件就已经具备。因为已经知道数据在哪里，你就彻底消除了杂乱无序的集成，并且所有工具都可以很好的一起工作。</p>
+</li>
+<li>
+<p><strong>通过以SQL为中心的生态系统来使得数据民主化</strong>：工具是为了数据/分析工程师和业务人员所构建的。这些用户通常最了解公司的数据，因此通过为他们提供会说他们语言的工具来提高他们的技能是非常有意义的。</p>
+</li>
+<li>
+<p><strong>弹性工作负载</strong>：按照使用量付费。对于大的处理负载，可以随时进行扩容。对于现代的云来讲，金钱是限制规模的唯一因素。</p>
+</li>
+<li>
+<p><strong>专注于可以运行的工作流</strong>：点击式工具对于低技术用户来说是很好的，但是如果没有可行的路径让相关工作转移到生产，它就是毫无价值。现代数据堆栈工具通常以自动化为核心能力构建。</p>
+</li>
+</ul>
+<blockquote>
+<p>ps：这就像智能机时代的到来摧枯拉朽地席卷了功能机的时代，处于变革前夕的路口仍然能看到过去Nokia的辉煌，但落幕就在一夕之间，错愕、无情、又理所当然。</p>
+</blockquote>
+<p><img src="https://kelvin-qin.github.io/post-images/%E6%95%B0%E6%8D%AE%E6%A0%88%E5%8E%86%E5%8F%B2.png" alt="" loading="lazy"><br>
+云数据仓库本身很有用，但不是变革性的。围绕这些平台涌现的生态系统真正使现代数据技术栈成为现实。创新者在开始将精力和资源投入到新的创新中之前，还需要看到来自用户的积极信号；否则，他们就有可能在一个死的平台上进行创新的风险。<br>
+Handy 得出的结论是，未来五年现代数据技术栈应该会出现另一轮创新，他强调了他认为已经成熟的五个关键领域值得探索：数据治理、实时、完成和反馈循环、数据访问民主化以及垂直分析体验。</p>
+<p>在现代数据技术栈成长到今天这个时候，我相信如下的几个关键领域的创新正在成熟：</p>
+<ul>
+<li>
+<p>人工智能</p>
+</li>
+<li>
+<p>数据分享</p>
+</li>
+<li>
+<p>数据治理</p>
+</li>
+<li>
+<p>流式计算</p>
+</li>
+<li>
+<p>应用服务</p>
+</li>
+</ul>
+<h4 id="人工智能">人工智能</h4>
+<p>任何在过去十年从事数据科学相关的工作的人都可能熟悉&quot;Data Science Hierarchy of Needs&quot;, 它如下图所示：<br>
+<img src="https://kelvin-qin.github.io/post-images/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A65%E5%B1%82%E9%9C%80%E6%B1%82%E5%9B%BE.png" alt="" loading="lazy"></p>
+<p>每个步骤都是环环相扣的，该图说明了达到甚至可以开始解决 AI 问题的所需要的依赖。具象化的需求图已经呼之欲出，只缺AI层：<br>
+<img src="https://kelvin-qin.github.io/post-images/%E6%95%B0%E7%A7%91%E9%9C%80%E6%B1%82%E5%9B%BE%E5%AE%9E%E7%8E%B01.png" alt="" loading="lazy"></p>
+<p>对于许多业务来讲，AI代表了巨大的增长机会。我们相信到 2030 年，几乎每个行业的领先公司都将把在整个企业中启用人工智能作为优先考量的事情。然而，不乏文章哀叹普通公司未能将他们的数据科学工作投入到有意义的生产环境中。现代数据技术栈是一个新型AI平台的一个重要的着陆点，这个AI平台是一个声明式的数据优先的AI平台，能够大幅度的简化操作AI的复杂度。</p>
+<h4 id="数据分享">数据分享</h4>
+<blockquote>
+<p>数据即服务</p>
+</blockquote>
+<p>数据只有被分享和能流动才能产生更大的价值。（Census和Hightough 反向ELT）</p>
+<h4 id="数据治理">数据治理</h4>
+<p>回到让现代数据技术栈能够服务大型企业这个话题：数据治理的重要性再怎么强调都不为过。一些公司有如此多的数据集，如果没有数据治理工具，几乎不可能跟踪和理解他们的数据。这是一个单个的个体会经常忽略的问题-与公司总体的数据视图相比，一个人的视野通常会比较有限。但是优秀的数据领导者会始终如一的强调好的数据治理工具的重要性，这些工具通常涵盖数据发现、数据可观测性、数据目录、数据血缘以及审计等等。</p>
+<p>在现在数据技术栈为背景的基础上，有不少公司在尝试解决这个问题。尽管这场竞赛还远未结束，但是有一些供应商表现出了巨大他的前景：Monte Carlo Data, Stemma以及Metaplance。</p>
+<h4 id="流式处理">流式处理</h4>
+<p>今天，相关流式处理功能已经在不同的供应商的平台中提供：Snowflake有Snowpipe并且暗示了一些新的能力，BigQuery, Redshift以及Snowflake有物化视图(尽管有一些严重的限制); Databricks支持Structured Streaming。除了这些标准的CDW提供商外，Confluent提供ksqlDB, Decodable正在重新设计流式数据工程，Meterialize是一个新定位自己的现代数据技术栈原生的流式计算的公司(通过使用dbt插件)。<br>
+如果有人能够提供一种解决方案，我不需要考虑基础设施，将我的数据移动到一个新平台，并且可以通过标准 SQL 查询简单可靠地获取实时数据，这将是非常值得大书特书的。</p>
+<h4 id="应用服务">应用服务</h4>
+<p>云端数据仓库完全属于OLAP类型，然后实际的应用经常需要高并发和低延迟，这通常是OLTP类型的特性。</p>
+<figure data-type="image" tabindex="3"><img src="https://kelvin-qin.github.io/post-images/%E7%8E%B0%E4%BB%A3%E6%95%B0%E6%8D%AE%E6%A0%883.png" alt="" loading="lazy"></figure>
+<h4 id="拭目以待">拭目以待</h4>
+<h2 id="考虑现代数据栈">考虑现代数据栈？</h2>
+<h3 id="数据湖扮演什么角色">数据湖扮演什么角色？</h3>
+<p>数据湖仍然有一席之地，但不是今天这个样子。随着时间的推移，关系SQL数据仓库将替换数据湖。</p>
+<h3 id="snowflake与mds">Snowflake与MDS</h3>
+<blockquote>
+<p>「现代数据栈」是否成立并不取决于技术本身，而是背后更大的前置条件——市场是否接受公有云。</p>
+</blockquote>
+<p>Snowflake让很多人知道了云数仓，云数仓也是MDS的核心一环，没有云数仓的MDS犹如海市蜃楼。CDW 改变了企业收集与统一数据的方式，创业公司只需要接入几家主流 CDW，以 SaaS 的形式提供服务，专注在自己核心的价值主张上，然后迅速成长并吸引到资金。</p>
+<h3 id="fivetran与mds">Fivetran与MDS</h3>
+<p>Fivetran的使命是让用户使用数据就像用电一样简单，无论数据的来源如何。它在传统的ETL赛道上创新，独创了适合云计算时代的ELT+E模式。目前，Fivetran估值56亿美元，是数据整合赛道的领导者，与Snowflake、IBM、SAP、Oracle等数据库或数据仓库连接，与ASICS、Autodesk、DocuSign、Forever 21、WeWork等知名公司是合作伙伴。</p>
+<p>Fivetran支持数百个数据库的连接。</p>
+<p>如果数据是新石油， Fivetran就是从源头到炼油厂的管道。</p>
+<p>每多一种连通，就意味着要增加一种连接器。Fivetran目前支持超过150种数据源，这是Fivetran的护城河，也是在数据整合赛道中无与伦比的竞争优势。</p>
+<p>Airbyte的产品主要的使用场景跟Fivetran非常类似，是ELT + E的场景，关注数据的互联互通，和最终的数据交付。</p>
+<p>回头来讲，Airbyte和Fivetran唯一的区别是：产品是否开源。</p>
+<h2 id="附录">附录</h2>
+<p>1：[[DBT前调]]<br>
+2：[[ETL与ELT]]</p>
+<h3 id="参考链接">参考链接</h3>
+<p>关于现代数据技术栈的浅见 https://www.modb.pro/db/377596<br>
+面向初创公司的现代数据堆栈 https://jiagoushi.pro/modern-data-stack-startups<br>
+现代数据栈谁可以替换Spark https://mp.weixin.qq.com/s/YPDyKohKdw0-wqzoaCSD1g<br>
+Tristan Handy，2020年12月，<a href="https://www.modb.pro/db/377599">The Modern Data Stack:Past Present, and Future</a><br>
+2025年的现代数据栈 https://m.meremoggies.com/blog/modern-data-stack-2025<br>
+2021 年要寻找的 6 种现代数据堆栈趋势 https://segmentfault.com/a/1190000038585639<br>
+聊一下数据民主化 https://www.modb.pro/db/377592<br>
+Jordan Volz，现代数据栈的未来 https://continual.ai/post/the-future-of-the-modern-data-stack<br>
+Fivetran：云计算时代的数据管道 https://view.inews.qq.com/a/20220119A08J9Z00</p>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/hudi-spark3-ru-men-di-yi-ke.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/hudi-spark3-ru-men-di-yi-ke/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-05-31">2022-05-31</time>
+                  <h4 class="title white no-margin">Hudi + Spark3入门第一课</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/xiao-lu-gong-ju-ji-he.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/xiao-lu-gong-ju-ji-he/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-05-21">2022-05-21</time>
+                  <h4 class="title white no-margin">效率工具合集(2022更新)</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

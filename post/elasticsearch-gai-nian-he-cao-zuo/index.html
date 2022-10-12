@@ -1,0 +1,562 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>ElasticSearch重要概念和常用操作 | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="本文记录的操作均在ElasticSearh 7.3版本全部验证过，包含基本入门操作，方便从零开始排查问题，也包含一些重要集群参数的设置和概念……
+
+基础的增删改查
+
+示例以kibana命令为主，可以转换为对应的curl命令：
+curl -X..." />
+    <meta name="keywords" content="ElasticSearch,BigData,点线面" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/elasticsearch-gai-nian-he-cao-zuo.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2022-01-05"><i class="fa fa-calendar"></i><span class="lately">9 个月前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/elasticsearch-gai-nian-he-cao-zuo/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/elasticsearch-gai-nian-he-cao-zuo/"> </span>
+              </a>
+              <span id="/elasticsearch-gai-nian-he-cao-zuo/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-0 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-1 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-2 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">ElasticSearch重要概念和常用操作</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <p>本文记录的操作均在ElasticSearh 7.3版本全部验证过，包含基本入门操作，方便从零开始排查问题，也包含一些重要集群参数的设置和概念……</p>
+<!-- more -->
+<h1 id="基础的增删改查">基础的增删改查</h1>
+<blockquote>
+<p>示例以kibana命令为主，可以转换为对应的curl命令：<br>
+<strong>curl -X动作 ES地址:9200/命令 [-d 'BODY']</strong><br>
+举例：</p>
+</blockquote>
+<ul>
+<li>GET查询集群状态<code>curl -XGET localhost:9200/_cluster/health?pretty=true</code></li>
+<li>PUT修改集群参数设置：
+<ul>
+<li>curl -XPUT localhost:9200/_cluster/settings -d '{<br>
+&quot;persistent&quot; : {<br>
+&quot;discovery.zen.minimum_master_nodes&quot; : 2<br>
+}<br>
+}'</li>
+</ul>
+</li>
+<li>POST执行集群分片分配：<code>curl -XPOST localhost:9200/_cluster/reroute?retry_failed=true&amp;pretty</code></li>
+</ul>
+<blockquote>
+<p>📢 pretty=true表示格式化输出，可以单独写pretty</p>
+</blockquote>
+<h2 id="创建索引">创建索引</h2>
+<pre><code># PUT直接写索引名，不要写type了
+PUT index_test
+</code></pre>
+<h2 id="写入数据">写入数据</h2>
+<pre><code># _doc必须写，这种写法不指定文档id
+POST index_test/_doc
+{
+    &quot;title&quot;:&quot;oppo&quot;,
+    &quot;price&quot;:1999
+}
+</code></pre>
+<h2 id="查询数据">查询数据</h2>
+<pre><code># 统计索引的记录条数
+GET index_test/_count
+# 查询index_test的前5条数据
+GET index_test/_search
+{
+    &quot;size&quot;:5,
+    &quot;query&quot;:{
+        &quot;match_all&quot;:{}
+    }
+}
+</code></pre>
+<h2 id="删除数据">删除数据</h2>
+<pre><code># A：删除1条确定的数据
+# 以下示例中的1是一个文档的id，通过上述查询可以看到。 
+DELETE /&lt;index&gt;/_doc/&lt;_id&gt;
+DELETE /index_test/_doc/1
+
+# B：删除批量数据，通过查询删除，Delete by query API
+# POST /&lt;index&gt;/_delete_by_query
+# 例如删除某索引全部数据
+POST twitter/_delete_by_query?conflicts=proceed
+{
+  &quot;query&quot;: {
+    &quot;match_all&quot;: {}
+  }
+}
+# 删除年龄大于10的数据
+POST twitter/_delete_by_query?routing=1
+{
+  &quot;query&quot;: {
+    &quot;range&quot; : {
+        &quot;age&quot; : {
+           &quot;gte&quot; : 10
+        }
+    }
+  }
+}
+</code></pre>
+<p>批量删除的默认滚动批大小是1000，可以调整。</p>
+<pre><code>POST twitter/_delete_by_query?scroll_size=5000
+{
+  &quot;query&quot;: {
+    &quot;term&quot;: {
+      &quot;user&quot;: &quot;kimchy&quot;
+    }
+  }
+}
+</code></pre>
+<h2 id="删除整个索引">删除整个索引</h2>
+<p>与上述删除索引中的全部数据不同，还可以直接删除索引，拆家了这是。</p>
+<pre><code># 删除index_test这个索引，逗号分隔多个索引
+DELETE /index_test
+</code></pre>
+<h1 id="索引开关">索引开/关</h1>
+<pre><code># 某些操作需要关闭索引再进行；或者关闭一些暂时不用的索引。
+POST index_test/_close
+POST index_test/_open
+# curl形式
+curl -X POST &quot;localhost:9200/index_test/_open?pretty&quot;
+</code></pre>
+<h1 id="集群运维重要操作">集群运维重要操作</h1>
+<h2 id="节点掉线后延迟分配">节点掉线后延迟分配</h2>
+<p>这个参数对于稳定ES在线集群相当重要，<strong>这个操作不影响副本分片提升为主分片。</strong><br>
+节点离线后不会立即进行分片平衡，默认值是1m，节点离线后先等待这么久再进行副本分片分配和迁移等操作，以免频繁进行数据迁移耗费过大。<br>
+📢 <code>transient</code> 表示临时的，<code>persistent</code>表示永久的</p>
+<pre><code>PUT _all/_settings
+{
+  &quot;settings&quot;: {
+    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;5m&quot;
+  }
+}
+# 对应的curl命令如下
+curl -X PUT &quot;localhost:9200/_all/_settings?pretty&quot; -H 'Content-Type: application/json' -d'
+{
+  &quot;settings&quot;: {
+    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;5m&quot;
+  }
+}
+'
+# 但如果一个节点确实是（永远）下线了，可以指示立即分配：
+curl -X PUT &quot;localhost:9200/_all/_settings?pretty&quot; -H 'Content-Type: application/json' -d'
+{
+  &quot;settings&quot;: {
+    &quot;index.unassigned.node_left.delayed_timeout&quot;: &quot;0&quot;
+  }
+}
+'
+</code></pre>
+<h2 id="开启关闭集群的自动分配shard-allocation">开启关闭集群的自动分配(shard allocation)</h2>
+<p>这个在ES集群大范围重启前要考虑（滚动重启也算），<strong>维护时可以先停止分配，等维护好后再开启分配</strong>（强烈建议✅）。</p>
+<pre><code># 客户端停写，关闭集群shard allocation
+PUT _cluster/settings
+{
+    &quot;persistent&quot;: {
+        &quot;cluster.routing.allocation.enable&quot;: &quot;none&quot;
+    }
+}
+# 执行同步刷新
+POST _flush/synced
+# 停止和重启ES服务后，重新开启集群shard allocation
+PUT _cluster/settings
+{
+    &quot;persistent&quot;: {
+        &quot;cluster.routing.allocation.enable&quot;: &quot;all&quot;
+    }
+} 
+</code></pre>
+<h2 id="查看es集群的配置">查看ES集群的配置</h2>
+<p>查看配置以验证上述更改是否已经生效了。（<strong>多层json格式</strong>）</p>
+<pre><code>GET _cluser/settings
+</code></pre>
+<h2 id="增大集群分片恢复速度">增大集群分片恢复速度</h2>
+<p>一般来说，生产环境如果执行了滚动重启，此时有大量的分片需要分配或平衡。比如，我在重启了一个20节点机器的ES集群后（该集群有2万多分片），等待数小时后还有超过1万分片未分配，但是正在初始化的分片数却只有个位数。<strong>这时就需要增大恢复速率。</strong><br>
+📢 当然增大恢复速率会大量占用集群的磁盘I/O，网络等资源，如果业务仍在运行酌情适当增大一些，调的过大也会导致节点宕掉。</p>
+<pre><code>curl -X PUT &quot;es.master1.com:9200/_cluster/settings?pretty&quot; -H 'Content-Type: application/json' -d'
+{
+    &quot;persistent&quot;: {
+        &quot;cluster.routing.allocation.node_concurrent_recoveries&quot;: 50,
+        &quot;indices.recovery.max_bytes_per_sec&quot;: &quot;500mb&quot;
+    }
+}
+'
+</code></pre>
+<p>上述配置将永久性地将恢复并发度调整为50，也就是一个ES节点将同时可以有50个分片进行分配，这个值默认是2；另一个值是带宽大小，默认是20mb，现在调大为500mb。<br>
+⚠️ 注意！设置完之后，集群分片恢复速度剧增，直接导致某些实例心跳丢失，反而导致未分配数不降反增！<br>
+此时，rest接口已无法访问，显示大量节点掉线，不要慌，节点大概率是活着的，只是通信受阻，这是立即将并发度改为10，带宽改为100mb，节点数稍后恢复正常了。</p>
+<blockquote>
+<p>📝 此时health页面已无法访问，但实际上集群没有挂，后台设置配置显示超时，实际上成功了。</p>
+</blockquote>
+<h1 id="集群运维排错基本步骤">集群运维排错基本步骤</h1>
+<ol>
+<li>查看集群健康状态<br>
+重点是<code>red</code>还是<code>yellow</code>，未分配个数，延迟分配个数，正在初始化的个数，节点数</li>
+</ol>
+<pre><code>curl -X GET &quot;localhost:9200/_cluster/health?pretty&quot;
+</code></pre>
+<ol start="2">
+<li>如果节点数不正常，那么有ES实例失联或者宕机，需要优先启动该ES实例。
+<blockquote>
+<p>（HDP/Ambari从页面启动服务。）。</p>
+</blockquote>
+</li>
+<li>ES实例全部上线后，如果分片正在初始化个数为0，且有未分配的分片，则需要explain查看未分配原因，对症下药；</li>
+<li>如果有正在初始化的，等待恢复即可，参考<a href="#%E5%A2%9E%E5%A4%A7%E9%9B%86%E7%BE%A4%E5%88%86%E7%89%87%E6%81%A2%E5%A4%8D%E9%80%9F%E5%BA%A6">集群恢复速率调整</a>）。</li>
+<li>一般进行处理后，分片会自动进行分配；如果未分配，可以执行reroute命令：</li>
+</ol>
+<pre><code># 尤其在报错原因里提示分配失败是因为达到最大分配次数时，可使用这个命令。
+POST /_cluster/reroute?retry_failed=true&amp;pretty
+</code></pre>
+<ol start="5">
+<li>重复3~5。疑难杂症的处理后续专门讲述。</li>
+</ol>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/typora-zhu-ti-guo-nei-xia-zai.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/typora-zhu-ti-guo-nei-xia-zai/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-03-24">2022-03-24</time>
+                  <h4 class="title white no-margin">Typora主题国内下载</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/spark-de-not-serializablewei-shi-me-dui-xiang-xie-zai-main-fang-fa-wai-jiu-ke-yi.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/spark-de-not-serializablewei-shi-me-dui-xiang-xie-zai-main-fang-fa-wai-jiu-ke-yi/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2021-06-13">2021-06-13</time>
+                  <h4 class="title white no-margin">Spark的Not Serializable：为什么对象写在main方法外就可以？</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

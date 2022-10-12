@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://kelvin-qin.github.io</id>
+    <title>七暮的技术小站</title>
+    <updated>2022-10-12T07:06:24.179Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://kelvin-qin.github.io"/>
+    <link rel="self" href="https://kelvin-qin.github.io/atom.xml"/>
+    <subtitle>温故而知新~</subtitle>
+    <logo>https://kelvin-qin.github.io/images/avatar.png</logo>
+    <icon>https://kelvin-qin.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, 七暮的技术小站</rights>
+    <entry>
+        <title type="html"><![CDATA[Esrally性能测试步骤与调优]]></title>
+        <id>https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/</id>
+        <link href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">
+        </link>
+        <updated>2022-10-08T06:45:07.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ES集群异常修复与进阶问题]]></title>
+        <id>https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/</id>
+        <link href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">
+        </link>
+        <updated>2022-10-08T02:47:19.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ES集群red状态排查与恢复]]></title>
+        <id>https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/</id>
+        <link href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">
+        </link>
+        <updated>2022-06-07T09:37:43.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Impala常见问题笔记]]></title>
+        <id>https://kelvin-qin.github.io/post/impala-chang-jian-wen-ti-bi-ji/</id>
+        <link href="https://kelvin-qin.github.io/post/impala-chang-jian-wen-ti-bi-ji/">
+        </link>
+        <updated>2022-06-07T05:52:19.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CAP定理20年回首：时代变了吗？]]></title>
+        <id>https://kelvin-qin.github.io/post/cap-ding-li-20-nian-hui-gu-shi-dai-bian-liao-ma/</id>
+        <link href="https://kelvin-qin.github.io/post/cap-ding-li-20-nian-hui-gu-shi-dai-bian-liao-ma/">
+        </link>
+        <updated>2022-05-31T13:02:50.000Z</updated>
+        <summary type="html"><![CDATA[<p>前言</p>
+<p>10年前的今天，Eric Brewer 博士发表*<a href="https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/">CAP Twelve Years Later—How the 'Rules' Have Changed</a>*，原文上万字，翻译并摘要、附注如下：</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>前言</p>
+<p>10年前的今天，Eric Brewer 博士发表*<a href="https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/">CAP Twelve Years Later—How the 'Rules' Have Changed</a>*，原文上万字，翻译并摘要、附注如下：</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Hudi + Spark3入门第一课]]></title>
+        <id>https://kelvin-qin.github.io/post/hudi-spark3-ru-men-di-yi-ke/</id>
+        <link href="https://kelvin-qin.github.io/post/hudi-spark3-ru-men-di-yi-ke/">
+        </link>
+        <updated>2022-05-31T10:17:19.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[现代数据栈，谁主沉浮?]]></title>
+        <id>https://kelvin-qin.github.io/post/xian-dai-shu-ju-zhan-shui-zhu-chen-fu/</id>
+        <link href="https://kelvin-qin.github.io/post/xian-dai-shu-ju-zhan-shui-zhu-chen-fu/">
+        </link>
+        <updated>2022-05-23T07:11:23.000Z</updated>
+        <summary type="html"><![CDATA[<p>2022年已经没有人谈大数据这个概念，不是它失败了，恰恰是因为它成功了。成功技术的吊诡之处在于，它最终会被认为是理所当然，消失在背景音中。</p>
+<blockquote>
+<p>从最近的新闻热点里，我们不难看到大数据的身影，例如大数据加持的金税四期，疫情防控下的大数据时空伴随者等等……</p>
+</blockquote>
+]]></summary>
+        <content type="html"><![CDATA[<p>2022年已经没有人谈大数据这个概念，不是它失败了，恰恰是因为它成功了。成功技术的吊诡之处在于，它最终会被认为是理所当然，消失在背景音中。</p>
+<blockquote>
+<p>从最近的新闻热点里，我们不难看到大数据的身影，例如大数据加持的金税四期，疫情防控下的大数据时空伴随者等等……</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[效率工具合集(2022更新)]]></title>
+        <id>https://kelvin-qin.github.io/post/xiao-lu-gong-ju-ji-he/</id>
+        <link href="https://kelvin-qin.github.io/post/xiao-lu-gong-ju-ji-he/">
+        </link>
+        <updated>2022-05-21T02:28:26.000Z</updated>
+        <summary type="html"><![CDATA[<blockquote>
+<p>工欲善其事，必先利其器。记录分享用到的所有好用的工具、软件、小程序，包括markdown、chrome插件、快捷工具、截图OCR等等。</p>
+</blockquote>
+]]></summary>
+        <content type="html"><![CDATA[<blockquote>
+<p>工欲善其事，必先利其器。记录分享用到的所有好用的工具、软件、小程序，包括markdown、chrome插件、快捷工具、截图OCR等等。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Openlookeng的性能与Hive&Spark对比]]></title>
+        <id>https://kelvin-qin.github.io/post/openlookeng-de-xing-neng-yu-hiveandspark-dui-bi/</id>
+        <link href="https://kelvin-qin.github.io/post/openlookeng-de-xing-neng-yu-hiveandspark-dui-bi/">
+        </link>
+        <updated>2022-05-20T02:25:38.000Z</updated>
+        <summary type="html"><![CDATA[<h2 id="测试说明">测试说明</h2>
+<p>系列用例主要是为了获取一组计算引擎的性能基准，3物理节点500G数据较为适宜，既能考验性能又不花费太长时间。</p>
+]]></summary>
+        <content type="html"><![CDATA[<h2 id="测试说明">测试说明</h2>
+<p>系列用例主要是为了获取一组计算引擎的性能基准，3物理节点500G数据较为适宜，既能考验性能又不花费太长时间。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Visio/亿图 替代]]></title>
+        <id>https://kelvin-qin.github.io/post/visio-he-yitu-ti-dai/</id>
+        <link href="https://kelvin-qin.github.io/post/visio-he-yitu-ti-dai/">
+        </link>
+        <updated>2022-04-28T15:16:54.000Z</updated>
+    </entry>
+</feed>

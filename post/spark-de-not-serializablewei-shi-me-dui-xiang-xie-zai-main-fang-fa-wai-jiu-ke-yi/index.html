@@ -1,0 +1,412 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>Spark的Not Serializable：为什么对象写在main方法外就可以？ | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="问题背景
+在用Scala编写spark应用程序的时候，如果在executor中要用到一些公参变量、配置或自定义样例类(如case class等等)，直接依照常规方法定义局部变量使用会报错“xxx 不可序列化（Task not seriali..." />
+    <meta name="keywords" content="Q&A,Spark,BigData" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/spark-de-not-serializablewei-shi-me-dui-xiang-xie-zai-main-fang-fa-wai-jiu-ke-yi.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2021-06-13"><i class="fa fa-calendar"></i><span class="lately">1 年前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/spark-de-not-serializablewei-shi-me-dui-xiang-xie-zai-main-fang-fa-wai-jiu-ke-yi/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/spark-de-not-serializablewei-shi-me-dui-xiang-xie-zai-main-fang-fa-wai-jiu-ke-yi/"> </span>
+              </a>
+              <span id="/spark-de-not-serializablewei-shi-me-dui-xiang-xie-zai-main-fang-fa-wai-jiu-ke-yi/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-0 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-1 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-2 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">Spark的Not Serializable：为什么对象写在main方法外就可以？</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <h2 id="问题背景">问题背景</h2>
+<p>在用Scala编写spark应用程序的时候，如果在executor中要用到一些公参变量、配置或自定义样例类(如<code>case class</code>等等)，直接依照常规方法定义局部变量使用会报错“xxx 不可序列化（Task not serializable: java.io.NotSerializableException）”，以及对象不可序列化(object not serializable)，这时可以通过把报错变量提升到main方法外或继承<code>Serializable</code>来解决，but why？</p>
+<p>这个问题涉及java静态关键字和spark闭包的知识，研究整理如下，欢迎一起讨论。</p>
+<h2 id="java的static关键字">Java的static关键字</h2>
+<p>在类中，变量的前面有修饰符static的称为静态变量（类变量），方法的前面有修饰符static的称为静态方法（类方法）。<br>
+静态方法和静态变量属于某一个类，而不属于类的对象。静态变量和静态方法在类被加载的时候就分配了内存空间 。</p>
+<h2 id="scala的object与class">Scala的object与class</h2>
+<ul>
+<li>
+<p>object<br>
+在Scala中没有静态修饰符，在<code>object</code>下的成员全部都是静态的，可以理解为Scala把java类中的<code>static</code>集中放到了object对象中，<strong>定义在object中的所有成员变量和方法默认都是 <code>static </code>的</strong>，但定义在main方法里的则仅仅是一个普通的局部变量。</p>
+</li>
+<li>
+<p>class<br>
+在scala中，类名可以和对象名相同，该对象称为该类的<strong>伴生对象</strong>。类只会被编译加载，不能直接被执行。类和主构造器在一起被申明，主构造器会执行类定义中的所有语句。伴生对象在第一次使用的时候会调用构造器。</p>
+</li>
+</ul>
+<h2 id="spark的闭包">Spark的闭包</h2>
+<p>RDD相关操作都需要传入自定义闭包函数(closure)，如果这个函数需要访问外部变量，那么需要遵循一定的规则，否则会抛出运行时异常。闭包函数传入到节点时,需要经过下面的步骤:</p>
+<ul>
+<li>driver通过反射，运行时找到闭包访问的所有变量，并封装成一个对象，然后序列化该对象（serialized on the driver node）</li>
+<li>将序列化后的对象通过网络传输到worker节点（shipped to the appropriate nodes in the cluster）</li>
+<li>worker节点反序列化闭包对象（deserialized）</li>
+<li>worker节点执行闭包函数（and finally executed on the nodes）<br>
+总之，就是要通过网络传递函数然后执行，所以被传递的变量必须可序列化，否则传递失败。本地执行时，仍然会执行上面4步。</li>
+</ul>
+<p>因此解决不可序列化问题无非以下两种方法：</p>
+<ol>
+<li>避免序列化：<br>
+不在map、filter等闭包内部直接引用某类（通常是当前类）的成员函数或成员变量，可以定义在map、filter等操作内部（（或使用lazy声明））或者定义在object对象中（也就是main方法外部）。</li>
+<li>序列化它：<br>
+对相应的引用某类的成员函数或变量做好序列化处理，主要是继承序列化类（with Serializable）。</li>
+</ol>
+<blockquote>
+<p>加上了lazy，相当于不对这个值进行序列化了，而是把这个隐式转换对象整个打包发送到worker上，然后用的时候才去加载。<br>
+还有，对于可以不需要序列化的成员变量可使用“@transient ”标注，被transient关键字修饰的变量不再能被序列化（慎用），一个静态变量不管是否被transient修饰，均不能被序列化。</p>
+</blockquote>
+<h2 id="小结">小结</h2>
+<p>静态成员不属于对象，属于类，不能被序列化，还有瞬态的变量也不能被序列化 。<br>
+Java对象中static，transient修饰的成员不能被序列化。<br>
+static变量保存在全局数据区，在对象未实例化时就已经生成，属于类的状态。<br>
+Scala object中定义的变量默认被static修饰，所以定义在main方法外可以不被序列化（spark闭包）。<br>
+最后，节点容器中，在本地的JVM中实例化静态变量，对象加载类时直接使用它，从而绕过了网络传输那一步，最终避免了序列化错误。</p>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/elasticsearch-gai-nian-he-cao-zuo.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/elasticsearch-gai-nian-he-cao-zuo/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-01-05">2022-01-05</time>
+                  <h4 class="title white no-margin">ElasticSearch重要概念和常用操作</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/sparkstreaming-hbase-su-du-ti-sheng-5-bei.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/sparkstreaming-hbase-su-du-ti-sheng-5-bei/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2021-06-06">2021-06-06</time>
+                  <h4 class="title white no-margin">SparkStreaming写Hbase速度提升5倍</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

@@ -1,0 +1,467 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>Spark SQL参数调优汇总|提速100% | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="研究背景
+
+基于TPCDS的100G，500G数据进行了99SQL综合调优测试
+测试机为物理机5台，1台为管理节点，4台为计算节点
+可用内存约1T，核心数（vCore）200大概
+
+
+基于实践，在较大数据量下至少提速了一倍。TPCDS是一个..." />
+    <meta name="keywords" content="Spark,实测,BigData" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/spark-sql-can-shu-diao-you-hui-zong-orti-su-100.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2019-10-19"><i class="fa fa-calendar"></i><span class="lately">3 年前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/spark-sql-can-shu-diao-you-hui-zong-orti-su-100/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/spark-sql-can-shu-diao-you-hui-zong-orti-su-100/"> </span>
+              </a>
+              <span id="/spark-sql-can-shu-diao-you-hui-zong-orti-su-100/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-0 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-1 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-2 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">Spark SQL参数调优汇总|提速100%</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <h2 id="研究背景">研究背景</h2>
+<ul>
+<li>基于TPCDS的100G，500G数据进行了99SQL综合调优测试</li>
+<li>测试机为物理机5台，1台为管理节点，4台为计算节点</li>
+<li>可用内存约1T，核心数（vCore）200大概</li>
+</ul>
+<blockquote>
+<p>基于实践，在较大数据量下至少提速了一倍。TPCDS是一个复杂的综合任务集合，涵盖了统计分析，数据挖掘，迭代计算等各种类型的99个SQL查询，本文是针对99SQL的整体调优。</p>
+</blockquote>
+<h2 id="最重要的参数">最重要的参数</h2>
+<blockquote>
+<p>一般不用调driver的相关参数,部分参数是核心缩写，使用时注意全称。</p>
+</blockquote>
+<h3 id="执行器个数">执行器个数</h3>
+<p><code>--num-executors</code></p>
+<blockquote>
+<p>推荐物理机数的2~6倍，太大呢会增加通信和Shuffle等成本</p>
+</blockquote>
+<h3 id="内存分配">内存分配</h3>
+<p><code>spark.executor.memory</code></p>
+<blockquote>
+<p>也不是越大越好，大概是数据量2倍，如果是内存不足，多多益善</p>
+</blockquote>
+<h3 id="虚拟核心数">虚拟核心数</h3>
+<p><code>spark.executor.cores</code></p>
+<blockquote>
+<p>推荐2的整数倍，本例单个Executor给10核</p>
+</blockquote>
+<h3 id="默认分区数">默认分区数</h3>
+<p><code>shuffle.partitions</code> 或 <code>spark.default.parallelism</code></p>
+<blockquote>
+<p>这个对不同SQL影响各异，一般取线程数的2~3倍最好</p>
+</blockquote>
+<h3 id="sql自动分区">SQL自动分区</h3>
+<p><code>auto.repartition=true</code></p>
+<blockquote>
+<p>开启就行</p>
+</blockquote>
+<h3 id="开启堆外内存">开启堆外内存</h3>
+<p><code>spark.memory.offHeap.enabled</code> &amp; <code>spark.memory.offHeap.size=30g</code></p>
+<blockquote>
+<p>开，同时要指定大小，酌情指定</p>
+</blockquote>
+<h3 id="内存比例">内存比例</h3>
+<p><code>spark.memory.fraction</code></p>
+<blockquote>
+<p>默认0.6，上下调一点，大概有5%的效果提升空间</p>
+</blockquote>
+<h3 id="存储内存比例">存储内存比例</h3>
+<p><code>spark.memory.storageFraction</code></p>
+<blockquote>
+<p>默认0.5，上下调节，大概有3%的效果，也可能是误差</p>
+</blockquote>
+<h3 id="开启推测执行">开启推测执行</h3>
+<p><code>spark.speculation=true</code></p>
+<blockquote>
+<p>开启，大概有5%的提升</p>
+</blockquote>
+<h3 id="autobroadcastjointhreshold">autoBroadcastJoinThreshold</h3>
+<p><code>spark.sql.autoBroadcastJoinThreshold=20m</code></p>
+<blockquote>
+<p>调大，对某些任务类型有较大收益</p>
+</blockquote>
+<h2 id="其他系统参数">其他（系统）参数</h2>
+<h3 id="预读分区数">预读分区数</h3>
+<p><code>Blockdev=2048</code></p>
+<blockquote>
+<p>这是Linux系统参数，调大，大概5%效果</p>
+</blockquote>
+<h3 id="使用zstd压缩">使用zstd压缩</h3>
+<p><code>spark.io.compression.codec=zstd</code>和<code>spark.io.compression.zstd.level=2</code></p>
+<blockquote>
+<p>以空间换时间，效果不明，或有副作用</p>
+</blockquote>
+<h3 id="sqlcodegen">sql.codegen</h3>
+<p><code>spark.sql.codegen=true</code></p>
+<blockquote>
+<p>效果不明显，建议开启</p>
+</blockquote>
+<h3 id="shuffle缓冲大小">Shuffle缓冲大小</h3>
+<p><code>spark.shuffle.file.buffer=512k</code></p>
+<blockquote>
+<p>没啥效果，调一下试试，万一有用</p>
+</blockquote>
+<h3 id="spark调度模式">spark调度模式</h3>
+<p><code>spark.scheduler.mode=FAIR</code></p>
+<blockquote>
+<p>默认是FIFO，凑数，有同仁说有神效，提升10倍神马的</p>
+</blockquote>
+<blockquote>
+<p>以上反复测试了挺长时间，可以调节的参数差不多就这些，其余可以去优化一下代码写法，调优一下SQL，执行速度上还有改善空间。就说这么多，gg♨️.</p>
+</blockquote>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/media/images/mQ2YP0GDo.jpg');"></div>
+                 <a href="https://kelvin-qin.github.io/post/hive-job-accepted-chu-li/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2019-11-01">2019-11-01</time>
+                  <h4 class="title white no-margin">记一Hive执行Job挂起（Accepted状态）的异常处理</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/media/images/mQ2YP0GDo.jpg');"></div>
+                 <a href="https://kelvin-qin.github.io/post/hive-she-zhi-yarn-zhi-xing-dui-lie/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2019-10-13">2019-10-13</time>
+                  <h4 class="title white no-margin">Hive设置YARN执行队列</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

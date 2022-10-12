@@ -1,0 +1,460 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>Esrally性能测试步骤与调优 | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="
+esrally一个对ElasticSearch做基准性能测试的工具，是 elastic 官方开源的一款基于 python3 实现的针对ES 的压测工具，ES官方也是基于 esrally 进行 es 的性能测试。
+
+安装部署
+python3..." />
+    <meta name="keywords" content="实测,ElasticSearch" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2022-10-08"><i class="fa fa-calendar"></i><span class="lately">4 天前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/esrally-xing-neng-ce-shi-bu-zou/"> </span>
+              </a>
+              <span id="/esrally-xing-neng-ce-shi-bu-zou/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">Esrally性能测试步骤与调优</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <blockquote>
+<p>esrally一个对ElasticSearch做基准性能测试的工具，是 elastic 官方开源的一款基于 python3 实现的针对ES 的压测工具，ES官方也是基于 esrally 进行 es 的性能测试。</p>
+</blockquote>
+<h2 id="安装部署">安装部署</h2>
+<h3 id="python38安装">python3.8安装</h3>
+<p>使用root用户操作：</p>
+<pre><code class="language-shell">yum install libffi-devel
+tar zxvf Python-3.8.0.tgz
+cd Python-3.8.0
+./configure --prefix=/usr/local/python3
+make -j120
+make install
+rm -rf /usr/bin/python3
+ln -s /usr/local/python3/bin/python3 /usr/bin/python3
+ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+</code></pre>
+<p>可以自行查阅python官网：https://www.python.org/<br>
+或者直接执行下载命令：<br>
+wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz</p>
+<h3 id="git安装">git安装</h3>
+<p>本环境已安装git version 2.23.0，如果git不满足要求，参考以下内容：</p>
+<p>git 源码可以通过下面的链接获取，有各种版本：</p>
+<p><a href="https://mirrors.edge.kernel.org/pub/software/scm/git/">https://mirrors.edge.kernel.org/pub/software/scm/git/</a></p>
+<p>卸载旧版本</p>
+<p>yum remove git</p>
+<p>编译安装</p>
+<pre><code class="language-shell">tar -xzvf git-2.23.0.tar.gz 
+cd git-2.23.0
+./configure --prefix=/usr/local/git --with-openssl=/usr/local/openssl
+sudo make &amp;&amp; make install
+</code></pre>
+<p>配置GIT的环境变量去修改 <code>/etc/profile</code></p>
+<p><code>export GIT_HOME=/usr/local/git-2.23.0</code><br>
+<code>export PATH=\$PATH:\$GIT_HOME</code></p>
+<p>保存后执行<code>source /etc/pfofile</code></p>
+<p>使用 <code>git version</code> 查看GIT版本。</p>
+<h3 id="在线安装esrally">在线安装esrally</h3>
+<pre><code class="language-shell">pip3 install esrally==2.0.2 -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
+</code></pre>
+<h3 id="错误1">错误1</h3>
+<p>ERROR: botocore 1.13.50 has requirement urllib3&lt;1.26,&gt;=1.20; python_version &gt;= &quot;3.4&quot;, but you'll have urllib3 1.26.9 which is incompatible.</p>
+<p>解决办法：</p>
+<p>pip3 install urllib3==1.25<br>
+重新执行安装命令，显示所有依赖均满足条件。</p>
+<h3 id="错误2">错误2</h3>
+<p>[root@worker1 opt]# esrally configure<br>
+-bash: esrally：未找到命令</p>
+<p>不是安装失败，是因为esrally命令不会自动加入了环境变量！</p>
+<p>cd /usr/local/python3/bin</p>
+<p>./esrally configure</p>
+<h3 id="错误3">错误3</h3>
+<p>最后一行报错ImportError: cannot import name ‘soft_unicode‘ from ‘markupsafe‘……<br>
+查到弃用警告：“soft_unicode”已重命名为“soft_str”.旧名称将在 MarkupSafe 2.1 中删除，刚好这里已经是2.1.1版本了，看来需要回退低版本。<br>
+解决办法：<br>
+pip3 install markupsafe==2.0.1<br>
+再次执行<code>./esrally configure</code>成功安装了！</p>
+<h2 id="测试命令">测试命令</h2>
+<h3 id="数据集下载">数据集下载</h3>
+<p>这部分测试所需要的数据集可以在测试中下载，但数据集大且网络不稳定，因此预下载。</p>
+<p>如下操作：</p>
+<pre><code class="language-shell"># downloads the script from Github
+curl -O https://raw.githubusercontent.com/elastic/rally-tracks/master/download.sh
+chmod u+x download.sh
+chown elasticsearch  download.sh
+# download all data for the geonames track
+su elasticsearch
+cd /usr/local/python3/bin/
+./esrally configure
+cd ~
+./download.sh geonames
+</code></pre>
+<h3 id="测试命令-2">测试命令</h3>
+<p>geonames测试实例：</p>
+<pre><code class="language-shell">./esrally --pipeline=benchmark-only --target-hosts=192.168.1.104:9200,192.168.1.106:9200,192.168.1.108:9200  --track=geonames --offline --track-params=&quot;number_of_shards:32,bulk_indexing_clients:128&quot;  --report-file=/opt/report_geonames_32_128-numa.csv --report-format=csv
+</code></pre>
+<h2 id="性能调优">性能调优</h2>
+<h3 id="es参数">ES参数</h3>
+<ol>
+<li>ES的内存（heap size）<br>
+堆内存配置文件 jvm.options设置(相同大小，不超过32g情况下尽可能大)：</li>
+</ol>
+<pre><code>-Xms16g
+-Xmx16g
+</code></pre>
+<ol start="2">
+<li>ES的thread_pool<br>
+主要是不超过物理机的cpu核心数，一般越大越好。<br>
+注意！这类参数现在不能动态设置了，必须直接修改es的配置文件保存然后重启ES集群。</li>
+<li>关闭ES的监控（xpack），设置xpack.monitoring.collection.enabled 为false，提高稳定性。</li>
+<li>调整ES的数据盘为多目录<br>
+对ES读性能影响不大，可能略微对写ES性能有影响。</li>
+</ol>
+<h3 id="esrally参数">esrally参数</h3>
+<p>主要是分片数（shards）和<strong>客户端并发数</strong>需要调整！<br>
+客户端并发数非常重要！客户端并发数非常重要！客户端并发数非常重要！<br>
+如果不调大这个<code>clients</code>数其他参数基本白搭。</p>
+<blockquote>
+<p>踩坑2天……</p>
+</blockquote>
+<h2 id="参考文档">参考文档</h2>
+<p><a href="https://cloud.tencent.com/developer/article/1901555">01：Elasticsearch压测之Esrally压测标准 - 腾讯云开发者社区-腾讯云</a><br>
+<a href="https://developer.aliyun.com/article/764446">02：esrally：Elasticsearch 官方压测工具及运用详解-阿里云开发者社区</a><br>
+<a href="https://blog.csdn.net/woturanshihuaidexiao/article/details/110927608">03：es7.3的性能参数调优_thread_pool.write.size</a></p>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-10-08">2022-10-08</time>
+                  <h4 class="title white no-margin">ES集群异常修复与进阶问题</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

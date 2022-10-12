@@ -1,0 +1,525 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>JanusGraph常见问题与解决集锦 | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="这是一个JANUSGRAPH v0.4.0学习实践的填坑排错笔记，包括事务相关，代码打包编译等常见问题。
+错误1 事务相关
+问题描述
+已实现在后台使用addV()添加一些顶点数据，后台控制台可以查到，但执行下面代码输出为~0
+gremlin..." />
+    <meta name="keywords" content="实测,图数据库,BigData" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/janusgraph-chang-jian-wen-ti-yu-jie-jue-ji-jin.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2020-01-07"><i class="fa fa-calendar"></i><span class="lately">3 年前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/janusgraph-chang-jian-wen-ti-yu-jie-jue-ji-jin/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/janusgraph-chang-jian-wen-ti-yu-jie-jue-ji-jin/"> </span>
+              </a>
+              <span id="/janusgraph-chang-jian-wen-ti-yu-jie-jue-ji-jin/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-1 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-2 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">JanusGraph常见问题与解决集锦</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <p>这是一个JANUSGRAPH v0.4.0学习实践的填坑排错笔记，包括事务相关，代码打包编译等常见问题。</p>
+<h2 id="错误1-事务相关">错误1 事务相关</h2>
+<h3 id="问题描述">问题描述</h3>
+<p>已实现在后台使用addV()添加一些顶点数据，后台控制台可以查到，但执行下面代码输出为~0<br>
+<strong>gremlin命令行可以查到，但在IDEA中运行java程序查不到结果</strong></p>
+<h3 id="代码示例">代码示例</h3>
+<pre><code class="language-java">public static void main(String[] args) throws Exception {
+        GraphTraversalSource graph = traversal()
+                .withRemote(DriverRemoteConnection.using(&quot;my.host.com&quot;,8182,&quot;g&quot;));
+      
+        List&lt;Vertex&gt; ls = graph.V().has(&quot;name&quot;).toList();
+        System.out.println(&quot;===&quot;+graph.V().count().next());
+        System.out.println(&quot;===&quot;+graph.getGraph());
+        for(Vertex v :ls){
+            System.out.println(&quot;=========&quot;+v.label()+&quot;=======&quot;);
+        }
+        graph.close();
+}
+</code></pre>
+<h3 id="解决方案">解决方案</h3>
+<p>在gremlin控制台添加顶点数据后，在java程序中查不到，结果为空，原因是<strong>任何的图操作都会自动开启一个事务。如果事务没有提交，那么操作就不会生效</strong>。需要在<strong>gremlin控制台</strong>执行事务提交后才能查询到：</p>
+<pre><code class="language-shell">for (tx in graph.getOpenTransactions()) tx.commit()
+</code></pre>
+<p>事务提交后即可在Java程序中查询刚才添加的数据。简单来说就需要<code>graph.tx().commit()</code></p>
+<h2 id="错误2-gremlinserver">错误2 GremlinServer</h2>
+<h3 id="问题描述-2">问题描述</h3>
+<p>远程连接GremlinServer，报错源[g]别名未在服务器上配置</p>
+<blockquote>
+<p>错误信息：The traversal source [g] for alias [g] is not configured on the server.</p>
+</blockquote>
+<h3 id="代码示例-2">代码示例</h3>
+<blockquote>
+<p>同错误1，据说ES没有正常运行也会遇到这个错误。</p>
+</blockquote>
+<h3 id="解决方案-2">解决方案</h3>
+<p>修改配置文件</p>
+<pre><code class="language-shell">vim janusgraph-hbase-es.properties
+</code></pre>
+<p>在文件末尾添加如下配置：</p>
+<pre><code class="language-shell">gremlin.graph=org.janusgraph.core.JanusGraphFactory
+</code></pre>
+<p>保存后重启GremlinServer服务器,命令如下</p>
+<pre><code class="language-shell">/path_to_janus/janusgraph-0.4.0-hadoop2/bin/gremlin-server.sh  stop  /path_to_janus/conf/janusgraph-hbase-es.properties
+/path_to_janus/janusgraph-0.4.0-hadoop2/bin/gremlin-server.sh  start  /path_to_janus/conf/janusgraph-hbase-es.properties
+</code></pre>
+<p>java程序即可远程连接GremlinServer，查询数据无误。</p>
+<h2 id="错误3-es相关">错误3 ES相关</h2>
+<h3 id="问题描述-3">问题描述</h3>
+<p>java.lang.IllegalArgumentException: Could not instantiate implementation: org.janusgraph.diskstorage.es.ElasticSearchIndex</p>
+<blockquote>
+<p>错误信息包含：Caused by: java.lang.reflect.InvocationTargetException</p>
+</blockquote>
+<p>在Gremlin命令行创建graph时报错java.lang.IllegalArgumentException: Could not instantiate implementation: org.janusgraph.diskstorage.es.<strong>ElasticSearchIndex</strong><br>
+注：这在IDEA项目里用java代码访问JanusGraph时也会报同样的错但错误原因不一样。</p>
+<h3 id="解决方案-3">解决方案</h3>
+<p>排查如下：</p>
+<h4 id="执行的代码示例">执行的代码示例</h4>
+<pre><code class="language-shell">gremlin&gt; graph = JanusGraphFactory.open('/opt/janusgraph/conf/janusgraph-hbase-es.properties')
+</code></pre>
+<p>经 <code>curl http://localhost:9200</code>检查相应正常。但无论如何修改httpclient依赖包还是报错。经排查发现<strong>此时elasticsearch服务状态是red</strong>（因昨晚服务器全部掉电的缘故），将es的状态恢复到green之后，再次执行代码，直接就好了。随后用java代码读取数据一切正常。<br>
+可以看到:<code>standardjanusgraph</code>巴拉巴拉……</p>
+<h2 id="错误4-加载示例图时报错">错误4 加载示例图时报错</h2>
+<h3 id="问题描述-4">问题描述</h3>
+<p><strong>加载示例图时报错SchemaViolationException</strong>：<br>
+报错信息：</p>
+<p><code>org.janusgraph.core.SchemaViolationException: Adding this property for key [~T$SchemaName] and value [rtname] violates a uniqueness constraint [SystemIndex#~T$SchemaName]</code></p>
+<blockquote>
+<p>适用于其他SchemaViolationException（模式冲突）的情况推定</p>
+</blockquote>
+<h3 id="问题分析">问题分析</h3>
+<p>指Schema冲突，[rtname]违反了唯一性约束。SchemaName这一属性是唯一的，添加的值与先前存在的值冲突。<br>
+这是由于先前已经加载过<em>Graph of the Gods</em>，load命令已经执行过，存储中已存在相同的数据了，再次添加数据造成。</p>
+<h3 id="解决办法">解决办法</h3>
+<h4 id="方案一">方案一</h4>
+<p>不需要执行<code>GraphOfTheGodsFactory.load(graph)</code>语句，直接进行示例查询。</p>
+<pre><code class="language-shell">gremlin&gt; g = graph.traversal()
+==&gt;graphtraversalsource[standardjanusgraph[cql:[127.0.0.1]], standard]
+gremlin&gt; saturn = g.V().has('name', 'saturn').next()
+==&gt;v[256]
+gremlin&gt; g.V(saturn).valueMap()
+==&gt;[name:[saturn], age:[10000]]
+gremlin&gt; g.V(saturn).in('father').in('father').values('name')
+==&gt;hercules
+</code></pre>
+<h4 id="方案二">方案二</h4>
+<ul>
+<li>删除整个图【谨慎操作，不可恢复】，<br>
+包含 graph、data、schema 等都会被删除：<br>
+<code>JanusGraphFactory.drop(graph)</code></li>
+</ul>
+<p>注意：<br>
+<strong>删除图操作之后要关掉重新进gremlin console，重新打开图再执行load。否则报错</strong><br>
+<code>Could not re-open management log</code></p>
+<blockquote>
+<p>org.janusgraph.core.JanusGraphException: Could not re-open management log</p>
+</blockquote>
+<p>或者：</p>
+<ul>
+<li>删除存储后端中的数据表，再执行<code>GraphOfTheGodsFactory.load(graph)</code>即可。<br>
+HBase中默认的数据表名是“<strong>janusgraph</strong>”</li>
+</ul>
+<h2 id="错误5-nonodeexception">错误5 NoNodeException</h2>
+<h3 id="问题描述-5">问题描述</h3>
+<ul>
+<li>使用hbase后端存储，在gremlin命令行打开图的操作。</li>
+<li>HBase服务正常，能使用hbase shell进行操作<br>
+使用gremlin open图时报错org.apache.zookeeper.KeeperException$NoNodeException<br>
+详细报错日志：</li>
+</ul>
+<pre><code class="language-shell">java.util.concurrent.ExecutionException: org.apache.hadoop.hbase.shaded.org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for /hbase/hbaseid
+	at java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:357)
+	at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:1895)
+	……
+Caused by: org.apache.hadoop.hbase.shaded.org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for /hbase/hbaseid
+	at org.apache.hadoop.hbase.shaded.org.apache.zookeeper.KeeperException.create(KeeperException.java:111)
+</code></pre>
+<p>关键信息有：</p>
+<p><strong>NodeException: KeeperErrorCode = NoNode for /hbase/hbaseid</strong></p>
+<h3 id="解决方案-4">解决方案</h3>
+<p>既然zookeeper和hbase服务均正常，检查Hbase的配置：</p>
+<pre><code>&lt;property&gt;
+     &lt;name&gt;zookeeper.znode.parent&lt;/name&gt;
+     &lt;value&gt;/hbase-xxx&lt;/value&gt;
+ &lt;/property&gt;
+</code></pre>
+<p>发现这里并非是报错日志指向的<code>/hbase/hbaseid</code>，而是<code>/hbase-xxx</code>目录。可以将在页面看到的zookeeper.znode.parent值是/hbase-unsecure，改为/hbase重启HBase解决，但不妥，更正规的解法是官网一个参数，storage.hbase.ext.zookeeper.znode.parent ，在配置文件把这个参数的值设置为与zookeeper.znode.parent的值相同就可以解决！</p>
+<blockquote>
+<p>可能hbase升级后默认配置有变动，之前是没有异常的。</p>
+</blockquote>
+<h2 id="错误6-使用索引后端elasticsearch启动时报responseexception">错误6 使用索引后端elasticsearch启动时报ResponseException</h2>
+<h3 id="问题">问题</h3>
+<ul>
+<li>JanusGraph使用hbase-es配置</li>
+<li>使用gremlin命令行启动，执行<code>JanusGraphFactory.open</code>方法时出错<br>
+报错信息： org.elasticsearch.client.ResponseException: method [GET], host [http://host1.bigdata:9200] ……</li>
+</ul>
+<pre><code>15:09:09 WARN  org.janusgraph.diskstorage.es.rest.RestElasticSearchClient  
+- Unable to determine Elasticsearch server version. Default to FIVE.
+org.elasticsearch.client.ResponseException: method [GET], host [http://host1.bigdata:9200], URI [/], 
+status line [HTTP/1.1 503 Service Unavailable]
+&quot;cluster_uuid&quot; : &quot;_na_&quot;,
+Could not instantiate implementation: org.janusgraph.diskstorage.es.ElasticSearchIndex
+</code></pre>
+<h3 id="解决方案-5">解决方案</h3>
+<ol>
+<li>报错日志看到http://host1.bigdata:9200的GET访问不正常,有503服务不可用异常。</li>
+<li>集群uuid为_na_，ES集群状态不正常，检查es的日志，发现es因为没有足够的master节点没正常运行：<code>not enough master nodes discovered during pinging (found</code>。</li>
+<li>增加了es的master实例，ES集群正常运行了。重新运行gremlin，错误解决，可以正常加载图。</li>
+</ol>
+<blockquote>
+<p>刚开始还以为是https的问题，这些个错误都是JanusGraph使用的索引后端状态异常引起的，容易走弯路。<strong>错5</strong>和<strong>错6</strong>都不是JanusGraph本身的问题，但在实践中躲不开，权当做个备忘。</p>
+</blockquote>
+<h2 id="错误7-待续">错误7 待续</h2>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/ji-zhu-wan-hua-tong2016~2019.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/ji-zhu-wan-hua-tong2016~2019/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2020-03-11">2020-03-11</time>
+                  <h4 class="title white no-margin">技术手记(1)</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/janusgraphhbasees--kerberos.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/janusgraphhbasees--kerberos/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2019-11-12">2019-11-12</time>
+                  <h4 class="title white no-margin">JanusGraph+Hbase+ES在开启Kerberos下的配置</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>

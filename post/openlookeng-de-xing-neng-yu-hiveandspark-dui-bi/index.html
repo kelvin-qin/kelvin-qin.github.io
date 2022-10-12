@@ -1,0 +1,516 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+<title>Openlookeng的性能与Hive&amp;Spark对比 | 七暮的技术小站</title>
+<meta name="description" content="温故而知新~" />
+<link rel="shortcut icon" href="https://kelvin-qin.github.io/favicon.ico">
+<link rel="stylesheet" href="https://kelvin-qin.github.io/styles/main.css">
+
+<script src="https://kelvin-qin.github.io/media/js/jquery.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/masonry.pkgd.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/aos.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/pace.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/view-image.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/jquery.magnific-popup.min.js"></script>
+<script src="https://kelvin-qin.github.io/media/js/functions.js"></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?d01da8d23f3bcadad0d4d3c83094970f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+    <meta name="referrer" content="never">
+    <meta name="description" content="测试说明
+系列用例主要是为了获取一组计算引擎的性能基准，3物理节点500G数据较为适宜，既能考验性能又不花费太长时间。
+
+每组用例测3次（列表循环），可取平均值和最优值，各用例使用接近的总内存大小。
+Hive和Spark使用YARN管理分配..." />
+    <meta name="keywords" content="Openlookeng,实测,BigData" />
+    <script src="https://kelvin-qin.github.io/media/js/waterfall.min.js"></script>
+    <script src="https://kelvin-qin.github.io/media/js/prism.min.js"></script>
+  </head>
+  <body>
+            <header id="header" class="grid-container">
+        <!-- start: .menu-wrapper -->
+        <div class="menu-mobile"> 
+          <i class="fa fa-reorder"></i>
+        </div>
+        <div class="menu-wrapper">
+          <div class="">
+            <div class="logo">
+              <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-headerLogo.png" alt=""></a>
+            </div>
+            <!-- start: .main-nav -->
+            <nav class="main-nav grid-container grid-parent">
+              <ul id="menu-header" class="menu gradient-effect">
+                
+                  <li class="" >
+                    <a href="/" class="menu">
+                      首页
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/archives" class="menu">
+                      归档
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/tags" class="menu">
+                      标签
+                    </a>
+                  </li>
+                
+                  <li class="" >
+                    <a href="/post/about" class="menu">
+                      关于
+                    </a>
+                  </li>
+                
+                <li class="search-menu-item hide-on-mobile hide-on-tablet">
+                  <form id="gridea-search-form" data-update="1665538924684" action="/search/index.html">
+                  <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜点啥..." required="">
+                  </form>
+                </li>
+              </ul>
+              <span style="float:right; position: relative; margin-top:8px;"><img src="https://v1.jinrishici.com/all.svg?font-size=18&spacing=2"></span>
+            </nav>
+            <!-- end: .main-nav -->
+            <div class="clear"></div>
+            <div class="border hide-on-tablet hide-on-mobile"></div>
+          </div>    
+          <div class="clear"></div>
+        </div>
+        <!-- end: .menu-wrapper -->
+        <div class="clear"></div>
+      </header>
+
+      <main id="single" class="main grid-container fullcover no-sidebar aos-init aos-animate" data-aos="fade">
+
+        <div class="center content">
+          <div class="featured-image cover" style="background-image: url('https://kelvin-qin.github.io/post-images/openlookeng-de-xing-neng-yu-hiveandspark-dui-bi.png');">
+            <div class="meta top"> 
+              <time class="meta-info" style="float:left;" datetime="2022-05-20"><i class="fa fa-calendar"></i><span class="lately">5 个月前</span></time>
+              
+              <a href="https://kelvin-qin.github.io/post/openlookeng-de-xing-neng-yu-hiveandspark-dui-bi/#comments" class="comments meta-info" title="">
+                <i class="fa fa-comment remixicon"></i><span class="comment-count valine-comment-count" data-xid="/openlookeng-de-xing-neng-yu-hiveandspark-dui-bi/"> </span>
+              </a>
+              <span id="/openlookeng-de-xing-neng-yu-hiveandspark-dui-bi/" class="leancloud_visitors views-counter meta-info" title=""><i class="fa fa-leancloud remixicon"></i><span class="leancloud-visitors-count"></span></span>
+              
+            </div>
+            <div class="info">
+              <div class="tags ">
+                
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-0 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-1 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-2 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+              </div>
+              <h1 class="title ularge white bold">Openlookeng的性能与Hive&amp;Spark对比</h1>
+            </div>
+          </div>
+        </div>  
+
+        <div class="epcl-page-wrapper">
+          <div class="left-content grid-70 np-mobile">
+            <article class="main-article post">
+              <section class="post-content">
+                <div class="text">
+                  <h2 id="测试说明">测试说明</h2>
+<p>系列用例主要是为了获取一组计算引擎的性能基准，3物理节点500G数据较为适宜，既能考验性能又不花费太长时间。</p>
+<!-- more -->
+<p>每组用例测3次（列表循环），可取平均值和最优值，<strong>各用例使用接近的总内存大小</strong>。</p>
+<p>Hive和Spark使用YARN管理分配资源（CPU和内存），openlookeng自行管理Worker Memory。</p>
+<h2 id="数据准备">数据准备</h2>
+<p>因为TPC-DS耗时太长，这里选择使用TPC-H的全量22 SQL测试。</p>
+<blockquote>
+<p>生成TPC-H测试数据集，8张表，22sql</p>
+</blockquote>
+<p>生成500GB数据，hive表，大约花费3个小时</p>
+<p>1TB数量大概花费4小时。</p>
+<p><strong>组件版本说明：</strong></p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hive</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td>Spark</td>
+<td>3.1.1</td>
+</tr>
+<tr>
+<td>Openlookeng</td>
+<td>1.6.0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="测试执行">测试执行</h2>
+<blockquote>
+<p>这里只记述核心的命令，辅助的前后条件未记录</p>
+</blockquote>
+<h3 id="hive">Hive</h3>
+<pre><code class="language-shell">hive -n hive -p hive --hiveconf hive.tez.cpu.vcores=3 -f /home/hdfs/tpch_allquery2-hive.sql &gt; /home/hdfs/hive-500g-101.log 2&gt;&amp;1
+</code></pre>
+<h3 id="openlookeng">Openlookeng</h3>
+<pre><code class="language-shell">java -jar /opt/openlookeng/hetu-server-1.6.0/bin/hetu-cli-1.6.0-executable.jar --server localhost:9090 --catalog hive  --ignore-errors --schema  tpch_flat_parquet_500 --progress -f  /home/hdfs/openlookeng22.sql &gt; /home/hdfs/olk-500g-201.log  2&gt;&amp;1
+</code></pre>
+<blockquote>
+<p>注意：Openlookeng并不能直接执行TPC-H的hive版本sql，需要改动不少，可以参照使用presto版本的或者trino的</p>
+</blockquote>
+<h3 id="spark3">Spark3</h3>
+<pre><code class="language-shell">./bin/spark-sql  --master yarn --driver-memory 5G --driver-cores=6 --num-executors 18 --executor-cores 5 --executor-memory 25G  --database tpch_flat_parquet_500 -f /home/hdfs/tpch_allquery2.sql &gt; /home/hdfs/sql22-500g-301.log 2&gt;&amp;1
+</code></pre>
+<h2 id="测试结果">测试结果</h2>
+<blockquote>
+<p>记录执行22SQL的总时间，单位为秒，结果值是记录每一条SQL的执行时间并求和得出。</p>
+</blockquote>
+<h3 id="hive-2">Hive</h3>
+<table>
+<thead>
+<tr>
+<th>run-1</th>
+<th>run-2</th>
+<th>run-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4135.282</td>
+<td>4075.399</td>
+<td>4102.043</td>
+</tr>
+<tr>
+<td>设置core为1</td>
+<td>增加cores为2</td>
+<td>增加cores为3</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openlookeng-2">Openlookeng</h3>
+<table>
+<thead>
+<tr>
+<th>run-1</th>
+<th>run-2</th>
+<th>run-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2950.68</td>
+<td>3253.20</td>
+<td>3452</td>
+</tr>
+<tr>
+<td>逐条SQL执行</td>
+<td>批量执行</td>
+<td>批量执行，同run-2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="spark">spark</h3>
+<table>
+<thead>
+<tr>
+<th>run-1</th>
+<th>run-2</th>
+<th>run-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1665.228</td>
+<td>1617.062</td>
+<td>1526.685</td>
+</tr>
+<tr>
+<td>正常</td>
+<td>正常</td>
+<td>正常</td>
+</tr>
+</tbody>
+</table>
+<h2 id="测试结论">测试结论</h2>
+<p>500GB的TPC-H测试，各组取平均值：</p>
+<table>
+<thead>
+<tr>
+<th>Hive</th>
+<th>Openlookeng</th>
+<th>Spark3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4099</td>
+<td>3218</td>
+<td>1602</td>
+</tr>
+</tbody>
+</table>
+<figure data-type="image" tabindex="1"><img src="https://kelvin-qin.github.io/post-images/1653013646279.png" alt="" loading="lazy"></figure>
+<blockquote>
+<p>图为标准化的性能表示，将Hive引擎的性能作为1，值越大说明性能越高！</p>
+</blockquote>
+<p>可见，数据量较大的情况，Openlookeng的综合性能优势不明显，Spark仍然一骑绝尘。</p>
+
+                </div>
+                <div class="clear"></div>
+              </section>
+            </article>
+            <div class="clear"></div>
+
+            <section class="related section">
+              
+              <article class="prev grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/xiao-lu-gong-ju-ji-he.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/xiao-lu-gong-ju-ji-he/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-05-21">2022-05-21</time>
+                  <h4 class="title white no-margin">效率工具合集(2022更新)</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/left-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+              
+              <article class="next grid-50 tablet-grid-50 grid-parent">
+                <div class="thumb cover lazy loaded" style="background-image: url('https://kelvin-qin.github.io/post-images/visio-he-yitu-ti-dai.png');"></div>
+                 <a href="https://kelvin-qin.github.io/post/visio-he-yitu-ti-dai/" class="full-link"></a>
+                 <div class="info">
+                  <time datetime="2022-04-28">2022-04-28</time>
+                  <h4 class="title white no-margin">Visio/亿图 替代</h4>
+                </div>
+                 <span class="epcl-button red">
+                  <img src="https://kelvin-qin.github.io/media/images/right-arrow.svg" width="15" alt="Left Arrow">
+                </span>
+                <div class="overlay"></div>
+              </article>
+              
+
+                <div class="clear"></div>
+            </section>
+
+              <div class="clear"></div>
+
+            </div>
+          </div>
+      </main>
+
+          <footer id="footer" class="grid-container">
+        <div class="widgets row gradient-effect">
+            <div class="default-sidebar border-effect">
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_epcl_posts_thumbs underline-effect">
+                  <h4 class="widget-title title white bordered">最新文章</h4>
+                  
+                  
+                  <article class="item post-0 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/esrally-xing-neng-ce-shi-bu-zou.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/esrally-xing-neng-ce-shi-bu-zou/">Esrally性能测试步骤与调优</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-1 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-yi-chang-xiu-fu-chuli.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-10-08">2022-10-08</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-yi-chang-xiu-fu-chuli/">ES集群异常修复与进阶问题</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  <article class="item post-2 post type-post status-publish format-standard has-post-thumbnail hentry">
+                    <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/" class="thumb hover-effect">
+                      <span class="fullimage cover" style="display:block;border-radius:50%;background-image: url('https://kelvin-qin.github.io/post-images/es-ji-qun-red-zhuang-tai.png');"></span>
+                    </a>
+                    <div class="info gradient-effect">
+                      <time datetime="2022-06-07">2022-06-07</time>
+                      <h4 class="title usmall">
+                        <a href="https://kelvin-qin.github.io/post/es-ji-qun-red-zhuang-tai/">ES集群red状态排查与恢复</a>
+                      </h4>
+                    </div>
+                    <div class="clear"></div>
+                  </article>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="tag_cloud-2" class="widget widget_tag_cloud underline-effect">
+                  <h4 class="widget-title title white bordered">标签云</h4>
+                  <div class="tagcloud">
+                    
+                      <a href="https://kelvin-qin.github.io/tag/gEr-RPPlS/" class="ctag ctag-0 ctag-gEr-RPPlS" aria-label="">实测</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/MM38RISoP/" class="ctag ctag-1 ctag-MM38RISoP" aria-label="">ElasticSearch</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/4JmQ9E-3Mj/" class="ctag ctag-2 ctag-4JmQ9E-3Mj" aria-label="">Linux</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/Qb7zsbarJN/" class="ctag ctag-3 ctag-Qb7zsbarJN" aria-label="">点线面</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/VxLm5JEIfr/" class="ctag ctag-4 ctag-VxLm5JEIfr" aria-label="">BigData</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/iKxCkePyh/" class="ctag ctag-5 ctag-iKxCkePyh" aria-label="">技术杂谈</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/I4sBPlloZ/" class="ctag ctag-6 ctag-I4sBPlloZ" aria-label="">Hudi</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/eoXSAYwQE/" class="ctag ctag-7 ctag-eoXSAYwQE" aria-label="">Spark</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/5WGdww6bB/" class="ctag ctag-8 ctag-5WGdww6bB" aria-label="">星光集</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/FMo2Jf8xf/" class="ctag ctag-9 ctag-FMo2Jf8xf" aria-label="">百宝箱</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/NM-0PwOGn/" class="ctag ctag-10 ctag-NM-0PwOGn" aria-label="">Openlookeng</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/pjTu0M5yUY/" class="ctag ctag-11 ctag-pjTu0M5yUY" aria-label="">Q&amp;A</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/sJ3PLNjfY/" class="ctag ctag-12 ctag-sJ3PLNjfY" aria-label="">rsyslog</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/WYynlBPBi/" class="ctag ctag-13 ctag-WYynlBPBi" aria-label="">图数据库</a>
+                    
+                      <a href="https://kelvin-qin.github.io/tag/mQ2YP0GDo/" class="ctag ctag-14 ctag-mQ2YP0GDo" aria-label="">YARN</a>
+                    
+                  </div>
+                  <div class="clear"></div>
+                </section>
+              </div>
+
+              <div class="grid-33 tablet-grid-50 mobile-grid-100">
+                <section id="epcl_about-2" class="widget widget_epcl_about underline-effect">
+                  <h4 class="widget-title title white bordered">关于我</h4>
+                  <div class="avatar">
+                    <a href="" class="translate-effect thumb"><span class="fullimage cover" style="background-image: url(https://kelvin-qin.github.io/images/avatar.png);"></span></a>
+                  </div>
+                  <div class="info">
+                    <h4 class="title small author-name gradient-effect no-margin"><a href="">七暮的技术小站</a></h4>
+                    <p class="founder">温故而知新~</p>
+                    <div class="social">
+                      
+                        
+                      
+                        
+                      
+                          
+                            <a href="https://blog.csdn.net/yuand7?type=blog" class="translate-effect" target="_blank"><i class="fa fa-csdn"></i></a>
+                        
+                      
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                  </section>
+              </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="logo">
+          <a href="https://kelvin-qin.github.io"><img src="\media\images\custom-footerLogo.png" alt=""></a>
+        </div>
+        <p class="published border-effect">
+          ©2018~2022 共 28 篇文章
+          <br/>
+          Thanks for reading. Powered by <a href="https://kelvin-qzy.top/" target="_blank">「7Mu」</a>
+        </p>
+        
+        <a href="javascript:void(0)" id="back-to-top" class="epcl-button dark" style="display:none">
+          <i class="fa fa-arrow"></i>
+        </a>
+    </footer>
+    
+    <div class="clear"></div>
+
+      
+    <script src="https://kelvin-qin.github.io/media/js/functions-post.js"></script>
+
+    </div>
+    <!-- end: #wrapper -->
+  </body>
+</html>
